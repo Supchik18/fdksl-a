@@ -5,7 +5,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -14,15 +13,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Zero;
+    private Button One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Zero,  Clear;
 
-    private Button Minus, Plus, Division, Multiply, Result;
+    private Button Minus, Plus, Division, Multiply, Sqrt, Sqr, Percent, Result;
 
     private TextView Formula, EndResult;
 
-    private  char Action;
+    private char Action;
 
-    private double ResultValue= Double.NaN;
+    private double ResultValue = Double.NaN;
 
     private double Value;
 
@@ -51,6 +50,15 @@ public class MainActivity extends AppCompatActivity {
         Nine.setOnClickListener(numberClickListener);
         Zero.setOnClickListener(numberClickListener);
 
+        Clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Formula.setText("");
+                EndResult.setText("");
+                ResultValue = Double.NaN;
+            }
+        });
+
         View.OnClickListener actionClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -76,10 +84,46 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Sqrt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calculate();
+                if (!Double.isNaN(ResultValue)) {
+                    ResultValue = Math.sqrt(ResultValue);
+                    EndResult.setText(String.valueOf(ResultValue));
+                    Formula.setText(null);
+                }
+            }
+        });
+
+        Sqr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calculate();
+                if (!Double.isNaN(ResultValue)) {
+                    ResultValue = Math.pow(ResultValue, 2);
+                    EndResult.setText(String.valueOf(ResultValue));
+                    Formula.setText(null);
+                }
+            }
+        });
+
+        Percent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calculate();
+                if (!Double.isNaN(ResultValue)) {
+                    ResultValue = ResultValue / 100;
+                    EndResult.setText(String.valueOf(ResultValue));
+                    Formula.setText(null);
+                }
+            }
+        });
     }
 
-    private void SetupView(){
+    private void SetupView() {
         One = (Button) findViewById(R.id.One);
+        Clear = (Button) findViewById(R.id.clear);
         Two = (Button) findViewById(R.id.Two);
         Three = (Button) findViewById(R.id.Three);
         Four = (Button) findViewById(R.id.Four);
@@ -94,44 +138,47 @@ public class MainActivity extends AppCompatActivity {
         Division = (Button) findViewById(R.id.Division);
         Multiply = (Button) findViewById(R.id.Multiply);
         Result = (Button) findViewById(R.id.Result);
+        Sqrt = (Button) findViewById(R.id.Sqrt);
+        Sqr = (Button) findViewById(R.id.Sqr);
+        Percent = (Button) findViewById(R.id.Percent);
         Formula = (TextView) findViewById(R.id.Formula);
         EndResult = (TextView) findViewById(R.id.EndResult);
     }
-    private void calculate(){
-        if(Double.isNaN(ResultValue)){
+
+    private void calculate() {
+        if (!Double.isNaN(ResultValue)) {
             String textFormula = Formula.getText().toString();
             int index = textFormula.indexOf(Action);
-            if (index != -1){
+            if (index != -1) {
                 String numberValue = textFormula.substring(index + 1);
-                Value = Double.parseDouble(numberValue);
-                switch (Action){
+                double value = Double.parseDouble(numberValue);
+                switch (Action) {
                     case '/':
-                        if (Value == 0){
-                            ResultValue = 0.0;
-                        } else {
-                            ResultValue/= Value;
-                        }
+                        ResultValue = (value == 0) ? 0.0 : ResultValue / value;
                         break;
                     case '*':
-                        ResultValue *= Value;
+                        ResultValue *= value;
                         break;
                     case '+':
-                        ResultValue += Value;
+                        ResultValue += value;
                         break;
                     case '-':
-                        ResultValue -= Value;
+                        ResultValue -= value;
                         break;
+
                     case '=':
-                        ResultValue = Value;
+                        ResultValue = value;
                         break;
 
                 }
-
-            } else {
-                ResultValue = Double.parseDouble(Formula.getText().toString());
             }
-            EndResult.setText(String.valueOf(ResultValue));
-            Formula.setText("");
+        } else {
+            try {
+                ResultValue = Double.parseDouble(Formula.getText().toString());
+            } catch (NumberFormatException e) {
+                ResultValue = 0.0;
+            }
         }
+        EndResult.setText(String.valueOf(ResultValue));
     }
 }
